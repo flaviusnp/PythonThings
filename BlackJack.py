@@ -1,76 +1,76 @@
 from random import shuffle
 
+
 class Pachet:
+    pachet = []
 
-	pachet = []
+    def __init__(self, pachet):
 
-	def __init__(self,pachet) :
+        self.pachet = pachet
 
-		self.pachet = pachet
+    def creeaza_pachet(self):
 
-	def creeaza_pachet(self):
+        trefla = '\u2663'
+        neagra = '\u2660'
+        romb = '\u2666'
+        rosie = '\u2665'
+        trefle = []
+        negre = []
+        romburi = []
+        rosii = []
 
-		trefla = '\u2663' 
-		neagra = '\u2660'
-		romb   = '\u2666'
-		rosie  = '\u2665'
-		trefle  = []
-		negre   = []
-		romburi = []
-		rosii   = []
-		pachet = []
+        for i in range(2, 11):
+            trefle.append(str(i) + trefla)
+            negre.append(str(i) + neagra)
+            romburi.append(str(i) + romb)
+            rosii.append(str(i) + rosie)
 
-		for i in range(2,11) :
+        for i in ['A', 'J', 'Q', 'K']:
+            trefle.append(i + trefla)
+            negre.append(i + neagra)
+            romburi.append(i + romb)
+            rosii.append(i + rosie)
 
-			trefle.append(str(i) + trefla)
-			negre.append(str(i) + neagra)
-			romburi.append(str(i) + romb)
-			rosii.append(str(i) + rosie)
+        self.pachet = trefle + negre + romburi + rosii
 
-		for i in ['A','J','Q','K'] :
+        return shuffle(self.pachet)
 
-			trefle.append(i + trefla)
-			negre.append(i + neagra)
-			romburi.append(i + romb)
-			rosii.append(i + rosie)
+    def __str__(self):
 
-		self.pachet = trefle + negre + romburi + rosii
+        return str(self.pachet)
 
-		return shuffle(self.pachet)
+    def __iter__(self):
 
-	def __str__(self) :
+        return PachetIterator(self)
 
-		return str(self.pachet)
 
-	def __iter__(self) :
+class PachetIterator:
 
-		return PachetIterator(self)
+    def __init__(self, _pachet):
+        self._pachet = _pachet
+        self.index = 0
 
-class PachetIterator :
+    def __next__(self):
+        if self.index < (len(self._pachet.pachet)):
+            result = self._pachet.pachet[self.index]
 
-	def __init__(self,_pachet) :
+            self.index += 1
+            return result
 
-		self._pachet = _pachet
-		self.index = 0
+        raise StopIteration
 
-	def __next__(self) :
 
-		if self.index < (len(self._pachet.pachet)) :
+class RaspunsGresit(Exception):
+    pass
 
-			result = self._pachet.pachet[self.index]
+class NotEnoughFoundsException(Exception):
 
-			self.index += 1
-			return result
+    pass
 
-		raise StopIteration
 
-class RaspunsGresit(Exception) :
+class BustException(Exception):
+    pass
 
-	pass
-
-class BustException(Exception) :
-
-	pass
 
 my_pachet = Pachet([])
 my_pachet.creeaza_pachet()
@@ -79,227 +79,406 @@ iterator = iter(my_pachet)
 
 deck = []
 
-while True :
+while True:
 
-	try :
+    try:
 
-		deck.append(next(iterator))
-		
+        deck.append(next(iterator))
 
-	except StopIteration :
+    except StopIteration:
 
-		break
+        break
 
-#print(deck)
+# print(deck)
 
-#Aici avem pachetul amestecat ---> deck !!!!
+# Aici avem pachetul amestecat ---> deck !!!!
 
-class UtilJoc(RaspunsGresit) :
 
-	def __init__(self,deck) :
+class UtilJoc(RaspunsGresit):
 
-		self.deck = deck
+    def __init__(self, deck, founds):
 
-	def imparte_primele_carti(self,player_cards=[],dealer_cards=[]):
-		
-		self.player_cards = player_cards
-		self.dealer_cards = dealer_cards
+        self.deck = deck
+        self.founds = founds
 
-		for i in range(0,4) :
+    def imparte_primele_carti(self, player_cards=[], dealer_cards=[]):
 
-			if i % 2 == 0 :
+        self.player_cards = player_cards
+        self.dealer_cards = dealer_cards
 
-				self.player_cards.append(self.deck.pop())
+        for i in range(0, 4):
 
-			else :
+            if i % 2 == 0:
 
-				self.dealer_cards.append(self.deck.pop())
+                self.player_cards.append(self.deck.pop())
 
-		return self.player_cards,self.dealer_cards
+            else:
 
-	#player_cards,dealer_cards = \
-		#imparte_primele_carti(self,deck,player_cards=[],dealer_cards=[])
+                self.dealer_cards.append(self.deck.pop())
 
-	#player-ul si dealer-ul au primit primul set de carti
+        return self.player_cards, self.dealer_cards
 
-	def draw_table(self,turn) :
+    # player-ul si dealer-ul au primit primul set de carti
 
-		self.turn = turn
+    def draw_table(self, turn):
 
-		if self.turn == 'p' :
+        self.turn = turn
 
-			print (f"Dealer : ['{self.dealer_cards[0]}', ' ']\n")
-			print (f'Player : {self.player_cards}')
+        if self.turn == 'p':
 
-		else :
+            print(f"Dealer : ['{self.dealer_cards[0]}', ' ']\n")
+            print(f'Player : {self.player_cards}')
 
-			print (f'Dealer : {self.dealer_cards}\n')
-			print (f'Player : {self.player_cards}')
+        else:
 
-	def hit_player(self) :
+            print(f'Dealer : {self.dealer_cards}\n')
+            print(f'Player : {self.player_cards}')
 
-		self.decision = ''
-		self.ok = 0
+    def hit_player(self):
 
-		print ('Doriti sa trageti o carte ?')
+        self.decision = ''
+        self.ok = 0
 
-		while True :
+        print('Doriti sa trageti o carte ?')
 
-			try :
+        while True:
 
-				self.decision = input('Hit or Stand : ')
+            try:
 
-				if self.decision.lower() == 'hit' :
+                self.decision = input('Hit or Stand : ')
 
-					self.player_cards.append(self.deck.pop())
+                if self.decision.lower() == 'hit':
 
-					self.ok = 1
+                    self.player_cards.append(self.deck.pop())
 
-					break
+                    self.ok = 1
 
-				elif self.decision.lower() == 'stand' :
+                    break
 
-					break
+                elif self.decision.lower() == 'stand':
 
-				else :
+                    break
 
-					raise RaspunsGresit
+                else:
 
-			except RaspunsGresit :
+                    raise RaspunsGresit
 
-				print ('Ai introdus un raspuns gresit !')
+            except RaspunsGresit:
 
-		return self.ok
+                print('Ai introdus un raspuns gresit !')
 
-	def check_aces(self) :
+        return self.ok
 
-		aces = ['A\u2663','A\u2660','A\u2665','A\u2666']
+    def hit_dealer(self):
 
-		counter = 0
+        self.dealer_cards.append(self.deck.pop())
 
-		for i in aces :
+    def check_aces(self, jucator):
 
-			for j in self.player_cards :
+        self.jucator_cards = jucator
 
-				if i == j :
+        aces = ['A\u2663', 'A\u2660', 'A\u2665', 'A\u2666']
 
-					counter += 1
+        counter = 0
 
-		return counter
+        for i in aces:
 
-	def delete_ace(self) :
+            for j in self.jucator_cards:
 
-		aces = ['A\u2663','A\u2660','A\u2665','A\2666']
+                if i == j:
+                    counter += 1
 
-		for i in aces :
+        return counter
 
-			for j in self.player_cards :
+    def delete_ace(self,jucator_cards):
 
-				if i == j :
+        aces = ['A' + '\u2663', 'A' + '\u2660', 'A' + '\u2665', 'A' + '\u2666']
 
-					self.player_cards.remove(i)
-					break
+        for i in aces:
 
-def incepe_joc():
+            ok = 0
 
-	print("Jocul a inceput !")
+            for j in self.jucator_cards:
 
-	test = UtilJoc(deck)
-	#print(deck)
-	player_cards,dealer_cards = \
-		test.imparte_primele_carti(player_cards=[],dealer_cards=[])
+                if i == j:
+                    self.jucator_cards.remove(i)
+                    self.jucator_cards.append(1)
+                    ok = 1
+                    break
 
-	test.draw_table('p')
+            if ok == 1:
+                break
 
-	while True :
+    def place_bet(self):
 
-		suma_player = 0
-		
-		try :
+        #min bet is 100
 
-			for x in player_cards :
+        if self.founds < 100 :
 
-				if x[0][0].isdigit() :
+            raise NotEnoughFoundsException
 
-					if x[0][0] == '1' :
+        while True :
 
-						suma_player += 10
+            try :
 
-					else :
+                suma = int(input('Pariaza o suma: '))
 
-						suma_player += int(x[0][0])
+                if suma > self.founds :
 
-				elif x[0][0] in ['J','Q','K'] :
+                    raise NotEnoughFoundsException
 
-					suma_player += 10
+                else :
 
-				else :
+                    print('Ai pariat {}$'.format(suma))
+                    break
 
-					suma_player += 11
+            except NotEnoughFoundsException :
 
-			print('aces=',test.check_aces())
+                print('Nu ai bani suficienti !')
 
-			if suma_player > 21 and test.check_aces() == 0:
+        return suma
 
-				raise BustException
+    def payment(self,suma,winner):
 
-			elif suma_player < 21 :
+        if winner == 'd':
 
-				ok = 0
-				ok = test.hit_player()
+            self.founds -= suma
 
-				if ok == 0 :
-					
-					break
+        elif winner == 'p':
 
-				else :
+            self.founds += suma
 
-					test.draw_table('p')
+        return self.founds
 
-			elif suma_player > 21 and test.check_aces() != 0 :
+def incepe_joc(founds):
 
-				suma_player -= 10
-				
-				#test.delete_ace()
-				
+    print("Jocul a inceput !")
 
-		except BustException :
+    test = UtilJoc(deck, founds)
+    # print(deck)
 
-			print ('Ai depasit 21 !')
-			print ('Jocul s-a terminat ! Dealerul a castigat !')
-			break
+    suma_pariata = test.place_bet()
 
-	print ('Ai ramas cu {}'.format(suma_player))
+    player_cards, dealer_cards = \
+        test.imparte_primele_carti(player_cards=[], dealer_cards=[])
 
-	print('You want to play this again ?')
-	joaca_iar = input('Da sau Nu :')
+    # FOR TESTING ONLY !
+    # player_cards = ['A\u2660', '4\u2660', 1, '2\u2660', '10\u2660'] BUG !
 
-	if joaca_iar.lower() == 'da' :
+    test.draw_table('p')
 
-		print('\n\n')
-		incepe_joc()
+    blackjack_player = 0
+    blackjack_dealer = 0
+    winner = ''
 
+    if player_cards[0][0] == 'A' and player_cards[1][0] in ['10', 'J', 'Q', 'K'] or\
+        player_cards[1][0] == 'A' and player_cards[0][0] in ['10', 'J', 'Q', 'K']:
 
-incepe_joc()
+        print('BlackJack !')
 
+        blackjack_player = 1
 
+    if dealer_cards[0][0] == 'A' and dealer_cards[1][0] in ['10', 'J', 'Q', 'K']:
 
-		
+        print('Dealer-ul are BlackJack !')
 
+        blackjack_dealer = 1
 
+    if blackjack_player == 1 and blackjack_dealer == 1:
 
+        print('Runda s-a terminat la egalitate !')
 
+    elif blackjack_dealer == 1 and blackjack_player == 0:
 
+        print('Dealer-ul a castigat!')
+        founds = test.payment(suma_pariata,'d')
 
+    elif blackjack_player == 1 and blackjack_dealer == 0:
 
+        print('Ai castigat !')
+        founds = test.payment(suma_pariata,'p')
 
+    suma1 = 0
 
+    while blackjack_player == 0 and blackjack_dealer == 0:
 
+        suma_player = 0
 
+        try:
 
+            for x in player_cards:
 
-	
+                if isinstance(x, int):
 
+                    suma_player += 1
 
+                elif x[0][0].isdigit():
 
+                    if x[0][0] == '1':
 
+                        suma_player += 10
+
+                    else:
+
+                        suma_player += int(x[0][0])
+
+                elif x[0][0] in ['J', 'Q', 'K']:
+
+                    suma_player += 10
+
+                else:
+
+                    suma_player += 11
+
+            if suma_player > 21 and test.check_aces(player_cards) == 0:
+
+                raise BustException
+
+            elif suma_player < 21:
+
+                ok = 0
+                ok = test.hit_player()
+
+                if ok == 0:
+
+                    suma1 = suma_player
+
+                    print('Ai ramas cu {}'.format(suma_player))
+
+                    break
+
+                else:
+
+                    test.draw_table('p')
+
+            elif suma_player == 21:
+
+                suma1 = suma_player
+                break
+
+            elif suma_player > 21 and test.check_aces(player_cards) != 0:
+
+                test.delete_ace(player_cards)
+
+        except BustException:
+
+            print('Ai ramas cu {}'.format(suma_player))
+
+            print('Ai depasit 21 !')
+
+            print('Jocul s-a terminat ! Dealerul a castigat !')
+
+            founds = test.payment(suma_pariata, 'd')
+
+            break
+
+    suma2 = 0
+    print('\n')
+    test.draw_table('d')
+
+    while blackjack_dealer == 0 and suma1 <= 21 and suma1 != 0:
+
+        suma_dealer = 0
+
+        try:
+
+            for x in dealer_cards:
+
+                if isinstance(x, int):
+
+                    suma_dealer += 1
+
+                elif x[0][0].isdigit():
+
+                    if x[0][0] == '1':
+
+                        suma_dealer += 10
+
+                    else:
+
+                        suma_dealer += int(x[0][0])
+
+                elif x[0][0] in ['J', 'Q', 'K']:
+
+                    suma_dealer += 10
+
+                else:
+
+                    suma_dealer += 11
+
+            if suma_dealer > 21 and test.check_aces(dealer_cards) == 0:
+
+                raise BustException
+
+            elif suma_dealer < 17:
+
+                test.hit_dealer()
+                print('\n')
+                test.draw_table('d')
+
+            elif suma_dealer >= 17 and test.check_aces(dealer_cards) == 0:
+
+                suma2 = suma_dealer
+                print('Dealer-ul a ramas cu {} '.format(suma_dealer))
+                break
+
+            elif suma_dealer == 21:
+
+                print('\n')
+                test.draw_table('d')
+                suma2 = suma_dealer
+                print('Dealer-ul are 21 !')
+                break
+
+            elif suma_dealer >= 17 and test.check_aces(dealer_cards) != 0:
+
+                test.delete_ace(dealer_cards)
+
+        except BustException:
+
+            print('Dealer-ul are {}'.format(suma_dealer))
+
+            break
+
+    if suma1 != 0:
+
+        if suma1 > suma2:
+
+            print('Ai castigat !')
+            founds = test.payment(suma_pariata, 'p')
+
+        elif suma2 > suma1:
+
+            print('Dealer-ul a castigat !')
+            founds = test.payment(suma_pariata, 'd')
+
+        else:
+
+            print('Remiza')
+
+    print('Ai {}$ in cont'.format(founds))
+
+    print('You want to play this again ?')
+
+    joaca_iar = input('Da sau Nu :')
+
+    if joaca_iar.lower() == 'da':
+
+        print('\n\n')
+
+        incepe_joc(founds)
+
+
+founds = 10000
+
+while True:
+
+    try:
+
+        incepe_joc(founds)
+
+    except NotEnoughFoundsException:
+
+        print('Nu ai suficienti bani in cont !')
+
+        break
